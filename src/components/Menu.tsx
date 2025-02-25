@@ -13,6 +13,7 @@ import { RootState } from "../store";
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import FilePresentIcon from '@mui/icons-material/FilePresent';
 
 
 
@@ -30,12 +31,24 @@ function Menu() {
             <List>
                 {isLoggedin ? (
                     <ListItem disablePadding>
-                        <Link to='/Upload' style={{ textDecoration: 'none', color: 'error', fontWeight: 'bold' }}>
+                        <Link to='/Upload' style={{ textDecoration: 'none' }}>
                             <ListItemButton>
                                 <ListItemIcon>
-                                    <CloudUploadIcon />
+                                    <CloudUploadIcon color='error'/>
                                 </ListItemIcon>
-                                <ListItemText primary="Inicio" />
+                                <ListItemText primary="Subir archivo" sx={{ color: 'red' }}/>
+                            </ListItemButton>
+                        </Link>
+                    </ListItem>
+                ) : null}
+                {isLoggedin ? (
+                    <ListItem disablePadding>
+                        <Link to='/ShowPersonalSessions' style={{ textDecoration: 'none' }}>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <FilePresentIcon color='error'/>
+                                </ListItemIcon>
+                                <ListItemText primary="Archivos Personales" sx={{ color: 'red' }}/>
                             </ListItemButton>
                         </Link>
                     </ListItem>
