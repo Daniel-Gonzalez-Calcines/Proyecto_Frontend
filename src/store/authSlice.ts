@@ -2,13 +2,15 @@ import { createSlice } from '@reduxjs/toolkit'
 export interface AuthState {
     isAutenticated: boolean,
     userName: string,
-    userRol: string
+    userRol: string,
+    userAvatar: string
 }
 
 const initialAuthState: AuthState = {
     isAutenticated: false,
     userName: '',
-    userRol: ''
+    userRol: '',
+    userAvatar: ''
 }
 
 const authSlice = createSlice({
@@ -21,6 +23,7 @@ const authSlice = createSlice({
             state.isAutenticated = true
             state.userName = userData.name
             state.userRol = userData.rol
+            state.userAvatar = userData.avatar
         },
 
         logout: () => {

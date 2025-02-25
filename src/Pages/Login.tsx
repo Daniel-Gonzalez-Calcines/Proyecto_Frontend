@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom'
 import Alert from '@mui/material/Alert';
 import { useDispatch } from 'react-redux'
 import { authActions } from '../store/authSlice';
+import { supabase } from "../DataBase/SupaBaseClient";
 
 
 function Login() {
 
     const dispatch = useDispatch()
 
-    const [data, setData] = useState({ usuario: '', contrasena: '' })
+    const [userData, setData] = useState({ usuario: '', contrasena: '' })
     const [alert, setAlert] = useState({ message: '', severity: '' })
     const navigate = useNavigate()
 
@@ -27,23 +28,29 @@ function Login() {
         navigate('Upload')
     }
 
-    const handleSubmit = (e: any) => {
-        e.preventDefault()
+    const handleSubmit = async () => {
+        const { data } = await supabase
+            .from('Usuarios')
+            .select('*')
+            .eq('usuario', userData.usuario).eq('password', userData.contrasena);
+        const exists = data && data.length > 0;
+        if (exists) {
 
-        fetch(`http://localhost:5000/users?user=${data.usuario}&password=${data.contrasena}`)
-            .then(response => response.json())
-            .then(response => {
-                console.log(response.data)
-                if (response.data.length !== 0) {
-                    dispatch(authActions.login({
-                        name: response.data.nombre,
-                        rol: response.data.rol
-                    }))
-                    navigate('/ShowPersonalSessions')
-                } else {
-                    setAlert({ message: 'Acceso denegado: Usuario o contraseñas incorrectos.', severity: 'error' });
-                }
-        })
+            let avatarBase64 = null;
+            if (data[0].avatar) {
+                const byteArray = new Uint8Array(data[0].avatar);
+                avatarBase64 = btoa(String.fromCharCode(...byteArray));
+                avatarBase64 = `data:image/jpeg;base64,${avatarBase64}`;
+            }
+
+            dispatch(authActions.login({
+                name: data[0].usuario,
+                rol: data[0].rol,
+                ...(avatarBase64 && { avatar: avatarBase64 })
+            }));
+        } else {
+            setAlert({ message: "Usuario o contraseña incorrectos", severity: "error" });
+        }
     };
 
     const boxStyle: React.CSSProperties = {
@@ -61,6 +68,7 @@ function Login() {
         <>
             <Box style={boxStyle}
                 component='form'
+                onSubmit={handleSubmit}
             >
                 <Typography>
                     INICIAR SESIÓN
@@ -73,7 +81,7 @@ function Login() {
                     fullWidth
                     id="Usuario"
                     label="Usuario"
-                    value={data.usuario} onChange={(e) => setData({ ...data, usuario: e.target.value })}
+                    value={userData.usuario} onChange={(e) => setData({ ...userData, usuario: e.target.value })}
                     slotProps={{
                         inputLabel: {
                             shrink: true,
@@ -87,7 +95,7 @@ function Login() {
                     fullWidth
                     id="Contrasena"
                     label="Contrasena"
-                    value={data.contrasena} onChange={(e) => setData({ ...data, contrasena: e.target.value })}
+                    value={userData.contrasena} onChange={(e) => setData({ ...userData, contrasena: e.target.value })}
                     slotProps={{
                         inputLabel: {
                             shrink: true,
@@ -95,7 +103,7 @@ function Login() {
                     }}
                 />
 
-                <Button variant='contained' fullWidth onClick={handleSubmit}>Acceder</Button>
+                <Button variant='contained' fullWidth type='submit'>Acceder</Button>
                 <Button variant='contained' fullWidth onClick={handleRegister}>Registrarse</Button>
                 <Button variant='contained' fullWidth onClick={handleNoLogin}>Acceder sin identificarse</Button>
 

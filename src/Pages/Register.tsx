@@ -57,7 +57,7 @@ function Register() {
 
     return (
         <>
-            <Box style={boxStyle} component="form">
+            <Box style={boxStyle} component="form" onSubmit={handleSubmit}>
                 <Typography>REGISTRARSE</Typography>
 
                 <LockIcon />
@@ -106,7 +106,7 @@ function Register() {
                     }}
                 />
 
-                <Button variant="contained" fullWidth onClick={handleSubmit}>
+                <Button variant="contained" fullWidth type='submit'>
                     Registarse
                 </Button>
                 <Button variant="contained" fullWidth onClick={handleLogin}>
