@@ -3,10 +3,11 @@ import LockIcon from "@mui/icons-material/Lock";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
+import { supabase } from '../DataBase/SupaBaseClient';
 
 function Register() {
 
-    const [data, setData] = useState({ usuario: "", contrasena: "", contrasena2: "" });
+    const [userData, setData] = useState({ usuario: "", contrasena: "", contrasena2: "" });
     const [alert, setAlert] = useState({ message: "", severity: "" });
     const navigate = useNavigate();
 
@@ -14,13 +15,30 @@ function Register() {
         navigate("/");
     };
 
-    const handleSubmit = (e: any) => {
-        e.preventDefault();
-        if (data.contrasena === data.contrasena2) {
-            fetch(
-                `http://localhost:5000/register?user=${data.usuario}&password=${data.contrasena}`
-            )
-            navigate('/');
+    const handleSubmit = async () => {
+        if (userData.contrasena === userData.contrasena2) {
+
+            const { data } = await supabase
+                .from('Usuarios')
+                .select('*')
+                .eq('usuario', userData.usuario);
+
+            const exists = data && data.length > 0;
+
+            if (!exists) {
+                const { error } = await supabase
+                    .from('Usuarios')
+                    .insert([{ usuario: userData.usuario, password: userData.contrasena, rol: '1' }]);
+
+                if (error) {
+                    console.error('Error inserting user:', error);
+                    setAlert({ message: "Error al registrar el usuario", severity: "error" });
+                } else {
+                    navigate('/');
+                }
+            } else {
+                setAlert({ message: "Nombre de usuario ya en uso", severity: "error" });
+            }
         } else {
             setAlert({ message: "Las contraseñas no coinciden", severity: "error" });
         }
@@ -49,8 +67,8 @@ function Register() {
                     fullWidth
                     id="Usuario"
                     label="Usuario"
-                    value={data.usuario}
-                    onChange={(e) => setData({ ...data, usuario: e.target.value })}
+                    value={userData.usuario}
+                    onChange={(e) => setData({ ...userData, usuario: e.target.value })}
                     slotProps={{
                         inputLabel: {
                             shrink: true,
@@ -64,8 +82,8 @@ function Register() {
                     fullWidth
                     id="Contrasena"
                     label="Contrasena"
-                    value={data.contrasena}
-                    onChange={(e) => setData({ ...data, contrasena: e.target.value })}
+                    value={userData.contrasena}
+                    onChange={(e) => setData({ ...userData, contrasena: e.target.value })}
                     slotProps={{
                         inputLabel: {
                             shrink: true,
@@ -79,8 +97,8 @@ function Register() {
                     fullWidth
                     id="Repetir Contrasena"
                     label="Repetir contrasena"
-                    value={data.contrasena2}
-                    onChange={(e) => setData({ ...data, contrasena2: e.target.value })}
+                    value={userData.contrasena2}
+                    onChange={(e) => setData({ ...userData, contrasena2: e.target.value })}
                     slotProps={{
                         inputLabel: {
                             shrink: true,
