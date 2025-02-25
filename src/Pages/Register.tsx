@@ -1,5 +1,4 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
-import LockIcon from "@mui/icons-material/Lock";
+import { Box, Button, Card, CardMedia, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
@@ -51,7 +50,7 @@ function Register() {
         width: "500px",
         margin: "20px auto",
         flexDirection: "column",
-        marginTop: 200,
+        marginTop: 50,
         gap: 10,
     };
 
@@ -60,7 +59,14 @@ function Register() {
             <Box style={boxStyle} component="form" onSubmit={handleSubmit}>
                 <Typography>REGISTRARSE</Typography>
 
-                <LockIcon />
+                <Card>
+                    <CardMedia
+                        component="img"
+                        height="140"
+                        image="/common/logo.png"
+                        alt="Assetto logo"
+                    />
+                </Card>
 
                 <TextField
                     required
@@ -106,10 +112,10 @@ function Register() {
                     }}
                 />
 
-                <Button variant="contained" fullWidth type='submit'>
+                <Button variant="contained" fullWidth type='submit' color='error'>
                     Registarse
                 </Button>
-                <Button variant="contained" fullWidth onClick={handleLogin}>
+                <Button variant="contained" fullWidth onClick={handleLogin} color='error'>
                     Inicar Sesión
                 </Button>
 
