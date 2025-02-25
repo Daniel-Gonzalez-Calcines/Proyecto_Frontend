@@ -46,7 +46,7 @@ function Login() {
                 rol: data[0].rol,
                 ...(avatarBase64 && { avatar: avatarBase64 })
             }));
-            navigate('/ShowPersonalSessions')
+            navigate('/Upload')
         } else {
             setAlert({ message: "Usuario o contraseña incorrectos", severity: "error" });
         }
