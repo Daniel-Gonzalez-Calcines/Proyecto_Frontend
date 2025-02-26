@@ -14,7 +14,8 @@ function Register() {
         navigate("/");
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (event: { preventDefault: () => void; }) => {
+        event.preventDefault();
         if (userData.contrasena === userData.contrasena2) {
 
             const { data } = await supabase
@@ -28,7 +29,6 @@ function Register() {
                 const { error } = await supabase
                     .from('Usuarios')
                     .insert([{ usuario: userData.usuario, password: userData.contrasena, rol: '1' }]);
-
                 if (error) {
                     console.error('Error inserting user:', error);
                     setAlert({ message: "Error al registrar el usuario", severity: "error" });

@@ -11,15 +11,16 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
     const [open, setOpen] = useState(false);
     const [jsonData, setjsonData] = useState<{ sesion: sesiondata } | null>(null);
     const [imageSrc, setImageSrc] = useState('/tracks/Default.jpg');
+    const [bestsessionlaps, setBestSessionLaps] = useState<bestlaps[]>([]);
 
     interface sesiondata {
         track: String;
         players: player[];
         number_of_sessions: number;
-        sessions: sesion[];
+        sessions: unique_sesion_data[];
     }
 
-    interface sesion {
+    interface unique_sesion_data {
         laps: laps[];
         name: String;
         type: number;
@@ -59,6 +60,25 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
     const handleClose = () => {
         setOpen(false);
     };
+
+    function formatMilliseconds(ms: number): string {
+        const hours = Math.floor(ms / 3600000);
+        const minutes = Math.floor((ms % 3600000) / 60000);
+        const seconds = Math.floor((ms % 60000) / 1000);
+        const milliseconds = ms % 1000;
+
+        if (hours > 0) {
+            return `${hours}:${String(minutes).padStart(2, "0")}:${String(
+                seconds
+            ).padStart(2, "0")}.${String(milliseconds).padStart(3, "0")}`;
+        } else if (minutes > 0) {
+            return `${minutes}:${String(seconds).padStart(2, "0")}.${String(
+                milliseconds
+            ).padStart(3, "0")}`;
+        } else {
+            return `${seconds}.${String(milliseconds).padStart(3, "0")}`;
+        }
+    }
 
     useEffect(() => {
         if (jsonData) {
@@ -105,15 +125,23 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                 sx={{ cursor: 'pointer', width: '100%', objectFit: 'cover' }}
             />
             <CardContent>
-                <Typography variant="h5" component="h4">
-                    Circuito
+                <Typography>
+                    Circuito: {jsonData ? jsonData.sesion.track : "Error while loading"}
                     <br />
-                    {jsonData ? jsonData.sesion.track : "Error while loading"}
-                    <br />
-                    Número de sesiones
-                    <br />
-                    {jsonData ? jsonData.sesion.number_of_sessions : "Error while loading"}
+                    Número de sesiones: {jsonData ? jsonData.sesion.number_of_sessions : "Error while loading"}
                 </Typography>
+                {jsonData ? (
+                    Array.from({ length: jsonData.sesion.number_of_sessions }, (_, i) => {
+                        const bestlap = jsonData.sesion.sessions[i].bestLaps.sort((a: { time: number; }, b: { time: number; }) => a.time - b.time);
+                        const sesionname = jsonData.sesion.sessions[i].name
+                        const playername = jsonData.sesion.players[bestlap[0].car].name;
+                        return (
+                            <Typography>
+                                Mejor vuelta de {sesionname}: {formatMilliseconds(bestlap[0].time)} por {playername}
+                            </Typography>
+                        );
+                    })
+                ) : null}
             </CardContent>
 
             <Dialog open={open} onClose={handleClose}>
@@ -132,10 +160,36 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                                 <br />
                                 Número de sesiones: {jsonData ? jsonData.sesion.number_of_sessions : "Error while loading"}
                             </Typography>
+                            {jsonData ? (
+                                Array.from({ length: jsonData.sesion.number_of_sessions }, (_, i) => {
+                                    const bestlap = jsonData.sesion.sessions[i].bestLaps.sort((a: { time: number; }, b: { time: number; }) => a.time - b.time);
+                                    const sesionname = jsonData.sesion.sessions[i].name
+                                    const playername = jsonData.sesion.players[bestlap[0].car].name;
+                                    return (
+                                        <Typography variant="body1" component="p" sx={{ marginTop: '10px', textAlign: 'center' }}>
+                                            Mejor vuelta de {sesionname}: {formatMilliseconds(bestlap[0].time)} por {playername}
+                                        </Typography>
+                                    );
+                                })
+                            ) : null}
                         </Grid2>
                         <Grid2 size={1}>
                             <Button>
                                 <DeleteIcon sx={{ color: 'red' }} />
+                            </Button>
+                        </Grid2>
+                        <Grid2 size={12} >
+                            <Button
+                                variant='contained'
+                                color='error'
+                                sx={{
+                                    marginTop: '10px',
+                                    display: 'block',
+                                    marginLeft: 'auto',
+                                    marginRight: 'auto'
+                                }}
+                            >
+                                Ver estadísticas en detalle
                             </Button>
                         </Grid2>
                     </Grid2>
