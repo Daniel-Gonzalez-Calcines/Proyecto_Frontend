@@ -11,48 +11,76 @@ import ListItem from '@mui/material/ListItem';
 import { Card, CardMedia, ListItemButton, ListItemIcon, ListItemText, Tooltip } from '@mui/material';
 import { RootState } from "../store";
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FilePresentIcon from '@mui/icons-material/FilePresent';
-
+import { authActions } from '../store/authSlice';
+import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
 
 
 function Menu() {
     const [open, setOpen] = React.useState(false);
     const userData = useSelector((state: RootState) => state.authenticator)
-    const isLoggedin = userData.isAutenticated
+    const rol = userData.userRol
+    const dispatch = useDispatch()
 
     const toggleDrawer = (newOpen: boolean) => () => {
         setOpen(newOpen);
     };
 
+    const handleLogout = () => {
+        dispatch(authActions.logout());
+    };
+
     const DrawerList = (
         <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
             <List>
-                {isLoggedin ? (
+                {parseInt(rol) > 0 ? (
                     <ListItem disablePadding>
                         <Link to='/Upload' style={{ textDecoration: 'none' }}>
                             <ListItemButton>
                                 <ListItemIcon>
-                                    <CloudUploadIcon color='error'/>
+                                    <CloudUploadIcon color='error' />
                                 </ListItemIcon>
-                                <ListItemText primary="Subir archivo" sx={{ color: 'red' }}/>
+                                <ListItemText primary="Subir archivo" sx={{ color: 'red' }} />
                             </ListItemButton>
                         </Link>
                     </ListItem>
                 ) : null}
-                {isLoggedin ? (
+                <ListItem disablePadding>
+                    <Link to='/ShowPersonalSessions' style={{ textDecoration: 'none' }}>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                <FilePresentIcon color='error' />
+                            </ListItemIcon>
+                            <ListItemText primary="Archivos Personales" sx={{ color: 'red' }} />
+                        </ListItemButton>
+                    </Link>
+                </ListItem>
+                {parseInt(rol) > 0 ? (
                     <ListItem disablePadding>
-                        <Link to='/ShowPersonalSessions' style={{ textDecoration: 'none' }}>
+                        <Link to='/' style={{ textDecoration: 'none' }} onClick={handleLogout}>
                             <ListItemButton>
                                 <ListItemIcon>
-                                    <FilePresentIcon color='error'/>
+                                    <LogoutIcon color='error' />
                                 </ListItemIcon>
-                                <ListItemText primary="Archivos Personales" sx={{ color: 'red' }}/>
+                                <ListItemText primary="Cerrar sesión" sx={{ color: 'red' }} />
                             </ListItemButton>
                         </Link>
                     </ListItem>
-                ) : null}
+                ) :
+                    <ListItem disablePadding>
+                        <Link to='/' style={{ textDecoration: 'none' }}>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <LoginIcon color='error' />
+                                </ListItemIcon>
+                                <ListItemText primary="Iniciar sesión" sx={{ color: 'red' }} />
+                            </ListItemButton>
+                        </Link>
+                    </ListItem>
+                }
 
 
                 {/*

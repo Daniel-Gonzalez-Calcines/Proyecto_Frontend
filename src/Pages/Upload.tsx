@@ -23,7 +23,6 @@ function Upload() {
             reader.onload = async (event) => {
                 try {
                     const jsonData = JSON.parse(event.target?.result as string);
-                    console.log(jsonData.sessions[0].laps[0].car)
 
                     const id = await getId();
                     const intId = parseInt(id, 10);
