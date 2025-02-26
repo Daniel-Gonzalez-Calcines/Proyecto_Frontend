@@ -9,7 +9,7 @@ import './App.css'
 const router = createBrowserRouter([
   {
     path: '/',
-    errorElement: < ErrorPage/>, 
+    errorElement: <ErrorPage />, 
     children: [
       {
         index: true,

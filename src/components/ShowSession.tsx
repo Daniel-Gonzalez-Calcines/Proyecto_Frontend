@@ -1,4 +1,4 @@
-import { Card, CardMedia, CardContent, Typography, Dialog, DialogContent, Button, Grid2 } from "@mui/material";
+import { Card, CardMedia, CardContent, Typography, Dialog, DialogContent, Button, Grid2, Divider } from "@mui/material";
 import { useEffect, useState } from "react";
 import { supabase } from "../DataBase/SupaBaseClient";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -11,7 +11,6 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
     const [open, setOpen] = useState(false);
     const [jsonData, setjsonData] = useState<{ sesion: sesiondata } | null>(null);
     const [imageSrc, setImageSrc] = useState('/tracks/Default.jpg');
-    const [bestsessionlaps, setBestSessionLaps] = useState<bestlaps[]>([]);
 
     interface sesiondata {
         track: String;
@@ -115,7 +114,7 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
     }, []);
 
     return (
-        <Card sx={{ maxWidth: 300, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Card sx={{ maxWidth: 400, maxHeight: 460, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <CardMedia
                 component="img"
                 height="300"
@@ -124,20 +123,38 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                 onClick={handleImageClick}
                 sx={{ cursor: 'pointer', width: '100%', objectFit: 'cover' }}
             />
-            <CardContent>
+            <CardContent sx={{overflowY: 'auto'}}>
                 <Typography>
                     Circuito: {jsonData ? jsonData.sesion.track : "Error while loading"}
-                    <br />
-                    Número de sesiones: {jsonData ? jsonData.sesion.number_of_sessions : "Error while loading"}
                 </Typography>
                 {jsonData ? (
                     Array.from({ length: jsonData.sesion.number_of_sessions }, (_, i) => {
                         const bestlap = jsonData.sesion.sessions[i].bestLaps.sort((a: { time: number; }, b: { time: number; }) => a.time - b.time);
-                        const sesionname = jsonData.sesion.sessions[i].name
-                        const playername = jsonData.sesion.players[bestlap[0].car].name;
+                        const sesionname = jsonData.sesion.sessions[i].name.toUpperCase()
+                        let playername = jsonData.sesion.players[bestlap[0].car].name;
+                        const duration = jsonData.sesion.sessions[i].duration
+                        const cars = jsonData.sesion.players.length;
+                        const laps = jsonData.sesion.sessions[i].lapsCount
+                        let str = `Vueltas: ${laps}`;
+                        {
+                            jsonData.sesion.sessions[i].raceResult ? (
+                                playername = jsonData.sesion.players[jsonData.sesion.sessions[i].raceResult[0]].name
+                            ) : null
+                        }
+                        {
+                            laps == 0 ? (
+                                str = `Tiempo: ${duration}`
+                            ) : null
+                        }
                         return (
                             <Typography>
-                                Mejor vuelta de {sesionname}: {formatMilliseconds(bestlap[0].time)} por {playername}
+                                {sesionname}
+                                <br />
+                                {str}
+                                <br />
+                                Pilotos: {cars}
+                                <br />
+                                Ganador: {playername}
                             </Typography>
                         );
                     })
@@ -163,12 +180,35 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                             {jsonData ? (
                                 Array.from({ length: jsonData.sesion.number_of_sessions }, (_, i) => {
                                     const bestlap = jsonData.sesion.sessions[i].bestLaps.sort((a: { time: number; }, b: { time: number; }) => a.time - b.time);
-                                    const sesionname = jsonData.sesion.sessions[i].name
-                                    const playername = jsonData.sesion.players[bestlap[0].car].name;
+                                    const sesionname = jsonData.sesion.sessions[i].name.toUpperCase()
+                                    let playername = jsonData.sesion.players[bestlap[0].car].name;
+                                    const duration = jsonData.sesion.sessions[i].duration
+                                    const cars = jsonData.sesion.players.length;
+                                    const laps = jsonData.sesion.sessions[i].lapsCount
+                                    let str = `Vueltas: ${laps}`;
+                                    {
+                                        jsonData.sesion.sessions[i].raceResult ? (
+                                            playername = jsonData.sesion.players[jsonData.sesion.sessions[i].raceResult[0]].name
+                                        ) : null
+                                    }
+                                    {
+                                        laps == 0 ? (
+                                            str = `Tiempo: ${duration}`
+                                        ) : null
+                                    }
                                     return (
-                                        <Typography variant="body1" component="p" sx={{ marginTop: '10px', textAlign: 'center' }}>
-                                            Mejor vuelta de {sesionname}: {formatMilliseconds(bestlap[0].time)} por {playername}
-                                        </Typography>
+                                        <>
+                                            <Divider/>
+                                            <Typography textAlign={'center'}>
+                                                {sesionname}
+                                                <br />
+                                                {str}
+                                                <br />
+                                                Pilotos: {cars}
+                                                <br />
+                                                Ganador: {playername}
+                                            </Typography>
+                                        </>
                                     );
                                 })
                             ) : null}
