@@ -20,18 +20,30 @@ function Upload() {
     const loadData = async () => {
         if (selectedFile) {
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
                 try {
                     const jsonData = JSON.parse(event.target?.result as string);
                     console.log(jsonData.sessions[0].laps[0].car)
-                    return(jsonData)
+
+                    const id = await getId();
+                    const intId = parseInt(id, 10);
+
+                    const { error } = await supabase
+                        .from('Sessions')
+                        .insert([{ sesion: jsonData, user_id: intId }]);
+
+                    if (error) {
+                        console.error('Error inserting user:', error);
+                    } else {
+                        navigate('/ShowPersonalSessions');
+                    }
+
                 } catch (error) {
                     console.error("Error parsing JSON:", error);
                 }
             };
             reader.readAsText(selectedFile);
         }
-        return('')
     };
 
     const UploadFile = async () => {
@@ -44,18 +56,8 @@ function Upload() {
 
         const exists = data && data.length < 25;
 
-        const jsondata = await loadData();
-
         if (exists) {
-            const { error } = await supabase
-                .from('Sessions')
-                .insert([{ sesion: jsondata, user_id: intId }]);
-
-            if (error) {
-                console.error('Error inserting user:', error);
-            } else {
-                navigate('/ShowPersonalSessions');
-            }
+            loadData();
         }
     }
 
