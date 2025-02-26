@@ -53,8 +53,8 @@ function ShowPersonalSessions() {
             <Menu />
             <Grid2 container spacing={2} justifyContent="center" alignItems="center" style={{ width: '100vw', margin: '0 auto' }}>
                 {personalSessions.map((session) => (
-                    <Grid2 sx={{ xs:12, sm:6, md:4 }}>
-                        <ShowSession session={session} />
+                    <Grid2 sx={{ xs:12, sm:6, md:4 }} >
+                        <ShowSession session={session.id} />
                     </Grid2>
                 ))}
             </Grid2>
