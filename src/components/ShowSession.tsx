@@ -114,10 +114,10 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
     }, []);
 
     return (
-        <Card sx={{ maxWidth: 400, maxHeight: 460, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Card sx={{ maxWidth: 400, maxHeight: 400, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <CardMedia
                 component="img"
-                height="300"
+                height="250"
                 image={imageSrc}
                 alt="circuit"
                 onClick={handleImageClick}
@@ -205,6 +205,8 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                                                 {str}
                                                 <br />
                                                 Pilotos: {cars}
+                                                <br />
+                                                Mejor Vuelta: {formatMilliseconds(bestlap[0].time)} por {jsonData.sesion.players[bestlap[0].car].name}
                                                 <br />
                                                 Ganador: {playername}
                                             </Typography>
