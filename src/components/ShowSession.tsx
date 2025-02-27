@@ -2,15 +2,17 @@ import { Card, CardMedia, CardContent, Typography, Dialog, DialogContent, Button
 import { useEffect, useState } from "react";
 import { supabase } from "../DataBase/SupaBaseClient";
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from "react-router-dom";
 
-interface TestimonioProps {
+interface SessionProps {
     session: number;
 }
 
-const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
+const ShowSession: React.FC<SessionProps> = ({ session }) => {
     const [open, setOpen] = useState(false);
     const [jsonData, setjsonData] = useState<{ sesion: sesiondata } | null>(null);
     const [imageSrc, setImageSrc] = useState('/tracks/Default.jpg');
+    const navigate = useNavigate()
 
     interface sesiondata {
         track: String;
@@ -60,6 +62,10 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
         setOpen(false);
     };
 
+    const goToStats = () => {
+        navigate('/mainStats', { state: { session } });
+    }
+
     function formatMilliseconds(ms: number): string {
         const hours = Math.floor(ms / 3600000);
         const minutes = Math.floor((ms % 3600000) / 60000);
@@ -76,6 +82,22 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
             ).padStart(3, "0")}`;
         } else {
             return `${seconds}.${String(milliseconds).padStart(3, "0")}`;
+        }
+    }
+
+    async function handleDelete(sesionId: number) {
+        try {
+            const { error: fetchError } = await supabase
+                .from('Sessions')
+                .delete()
+                .eq('id', sesionId)
+            if (fetchError) {
+                throw fetchError;
+            } else {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error("Error during deleting sessions:", error);
         }
     }
 
@@ -114,7 +136,7 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
     }, []);
 
     return (
-        <Card sx={{ maxWidth: 400, maxHeight: 400, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Card sx={{ maxWidth: 400, minHeight: 400, minWidth: 400, maxHeight: 400, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <CardMedia
                 component="img"
                 height="250"
@@ -123,9 +145,12 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                 onClick={handleImageClick}
                 sx={{ cursor: 'pointer', width: '100%', objectFit: 'cover' }}
             />
-            <CardContent sx={{overflowY: 'auto'}}>
-                <Typography>
-                    Circuito: {jsonData ? jsonData.sesion.track : "Error while loading"}
+            <CardContent sx={{ overflowY: 'auto' }}>
+                <Typography component="span" variant="body1">
+                    <Typography component="span" variant="body1" fontWeight="bold">
+                        Circuito:
+                    </Typography>
+                    {jsonData ? jsonData.sesion.track : "Error while loading"}
                 </Typography>
                 {jsonData ? (
                     Array.from({ length: jsonData.sesion.number_of_sessions }, (_, i) => {
@@ -148,7 +173,9 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                         }
                         return (
                             <Typography>
-                                {sesionname}
+                                <Typography component="span" variant="body1" fontWeight="bold">
+                                    {sesionname}
+                                </Typography>
                                 <br />
                                 {str}
                                 <br />
@@ -173,9 +200,15 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                         </Grid2>
                         <Grid2 size={11}>
                             <Typography variant="body1" component="p" sx={{ marginTop: '10px', textAlign: 'center' }}>
-                                Circuito: {jsonData ? jsonData.sesion.track : "Error while loading"}
+                                <Typography component="span" variant="body1" fontWeight="bold">
+                                    Circuito:
+                                </Typography>
+                                {jsonData ? " " + jsonData.sesion.track : " Error while loading"}
                                 <br />
-                                Número de sesiones: {jsonData ? jsonData.sesion.number_of_sessions : "Error while loading"}
+                                <Typography component="span" variant="body1" fontWeight="bold">
+                                    Número de sesiones:
+                                </Typography>
+                                {jsonData ? " " + jsonData.sesion.number_of_sessions : " Error while loading"}
                             </Typography>
                             {jsonData ? (
                                 Array.from({ length: jsonData.sesion.number_of_sessions }, (_, i) => {
@@ -198,9 +231,11 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                                     }
                                     return (
                                         <>
-                                            <Divider/>
+                                            <Divider />
                                             <Typography textAlign={'center'}>
-                                                {sesionname}
+                                                <Typography component="span" variant="body1" fontWeight="bold">
+                                                    {sesionname}
+                                                </Typography>
                                                 <br />
                                                 {str}
                                                 <br />
@@ -216,7 +251,7 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                             ) : null}
                         </Grid2>
                         <Grid2 size={1}>
-                            <Button>
+                            <Button onClick={() => handleDelete(session)}>
                                 <DeleteIcon sx={{ color: 'red' }} />
                             </Button>
                         </Grid2>
@@ -230,6 +265,7 @@ const ShowSession: React.FC<TestimonioProps> = ({ session }) => {
                                     marginLeft: 'auto',
                                     marginRight: 'auto'
                                 }}
+                                onClick={() =>goToStats()}
                             >
                                 Ver estadísticas en detalle
                             </Button>

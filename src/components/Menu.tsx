@@ -41,9 +41,9 @@ function Menu() {
                         <Link to='/Upload' style={{ textDecoration: 'none' }}>
                             <ListItemButton>
                                 <ListItemIcon>
-                                    <CloudUploadIcon color='error' />
+                                    <CloudUploadIcon sx={{color: 'white'}} />
                                 </ListItemIcon>
-                                <ListItemText primary="Subir archivo" sx={{ color: 'red' }} />
+                                <ListItemText primary="Subir archivo" sx={{ color: 'white' }} />
                             </ListItemButton>
                         </Link>
                     </ListItem>
@@ -52,9 +52,9 @@ function Menu() {
                     <Link to='/ShowPersonalSessions' style={{ textDecoration: 'none' }}>
                         <ListItemButton>
                             <ListItemIcon>
-                                <FilePresentIcon color='error' />
+                                <FilePresentIcon sx={{color: 'white'}} />
                             </ListItemIcon>
-                            <ListItemText primary="Archivos Personales" sx={{ color: 'red' }} />
+                            <ListItemText primary="Archivos Personales" sx={{color: 'white'}} />
                         </ListItemButton>
                     </Link>
                 </ListItem>
@@ -63,9 +63,9 @@ function Menu() {
                         <Link to='/' style={{ textDecoration: 'none' }} onClick={handleLogout}>
                             <ListItemButton>
                                 <ListItemIcon>
-                                    <LogoutIcon color='error' />
+                                    <LogoutIcon sx={{color: 'white'}} />
                                 </ListItemIcon>
-                                <ListItemText primary="Cerrar sesión" sx={{ color: 'red' }} />
+                                <ListItemText primary="Cerrar sesión" sx={{color: 'white'}} />
                             </ListItemButton>
                         </Link>
                     </ListItem>
@@ -74,73 +74,13 @@ function Menu() {
                         <Link to='/' style={{ textDecoration: 'none' }}>
                             <ListItemButton>
                                 <ListItemIcon>
-                                    <LoginIcon color='error' />
+                                    <LoginIcon sx={{color: 'white'}} />
                                 </ListItemIcon>
-                                <ListItemText primary="Iniciar sesión" sx={{ color: 'red' }} />
+                                <ListItemText primary="Iniciar sesión" sx={{color: 'white'}} />
                             </ListItemButton>
                         </Link>
                     </ListItem>
                 }
-
-
-                {/*
-                {rol == 'admin' ? (
-                    <ListItem disablePadding>
-                        <Link to='/Reports' style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <InboxIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Reports" />
-                            </ListItemButton>
-                        </Link>
-                    </ListItem>
-                ) : null}
-                {rol == 'admin' ? (
-                    <ListItem disablePadding>
-                        <Link to='/GestionUsuarios' style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <InboxIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Gestión usuarios" />
-                            </ListItemButton>
-                        </Link>
-                    </ListItem>
-                ) : null}
-                {rol != 'invitado' ? (
-                    <ListItem disablePadding>
-                        <Link to='/GestionPrestamos' style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <InboxIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Gestión Prestamos" />
-                            </ListItemButton>
-                        </Link>
-                    </ListItem>
-                ) : null}
-                <ListItem disablePadding>
-                    <Link to={'/Manual_de_usuario_DAD.pdf'} style={{ textDecoration: 'none', color: 'inherit' }} target='_blank'>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <HomeIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Ayuda" />
-                        </ListItemButton>
-                    </Link>
-                </ListItem>
-                <ListItem disablePadding>
-                    <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <HomeIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Salir" />
-                        </ListItemButton>
-                    </Link>
-                </ListItem>
-                */}
             </List>
         </Box>
     );
@@ -180,7 +120,15 @@ function Menu() {
                     )}
                 </Toolbar>
             </AppBar>
-            <Drawer open={open} onClose={toggleDrawer(false)}>
+            <Drawer
+                open={open}
+                onClose={toggleDrawer(false)}
+                sx={{
+                    '& .MuiDrawer-paper': {
+                        backgroundColor: 'darkred',
+                    },
+                }}
+            >
                 {DrawerList}
             </Drawer>
         </Box>
