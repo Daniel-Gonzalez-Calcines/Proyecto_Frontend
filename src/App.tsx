@@ -4,6 +4,7 @@ import Register from './Pages/Register'
 import ShowPersonalSessions from './Pages/ShowPersonalSessions'
 import Upload from './Pages/Upload'
 import MainStats from './Pages/mainStats'
+import FriendsMain from './Pages/FriendsMain'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './App.css'
 
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: 'mainStats',
         element: <MainStats />
+      }, 
+      {
+        path: 'Friends',
+        element: <FriendsMain />
       }
     ]
   },

@@ -60,6 +60,18 @@ function Menu() {
                 </ListItem>
                 {parseInt(rol) > 0 ? (
                     <ListItem disablePadding>
+                        <Link to='/Friends' style={{ textDecoration: 'none' }}>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <CloudUploadIcon sx={{color: 'white'}} />
+                                </ListItemIcon>
+                                <ListItemText primary="Amigos" sx={{ color: 'white' }} />
+                            </ListItemButton>
+                        </Link>
+                    </ListItem>
+                ) : null}
+                {parseInt(rol) > 0 ? (
+                    <ListItem disablePadding>
                         <Link to='/' style={{ textDecoration: 'none' }} onClick={handleLogout}>
                             <ListItemButton>
                                 <ListItemIcon>
