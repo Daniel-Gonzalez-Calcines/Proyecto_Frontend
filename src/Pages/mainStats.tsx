@@ -83,7 +83,7 @@ function MainStats() {
         <>
             <Menu />
             <br />
-            <Button color='error' variant="contained" onClick={() => changeShowData(0, 0)}>
+            <Button color={showData === 0 ? 'primary' : 'error'} variant="contained" onClick={() => changeShowData(0, 0)}>
                 Lista de jugadores
             </Button>
             {jsonData?.sesion.sessions.map((session, index) => (
@@ -95,25 +95,25 @@ function MainStats() {
                         </Typography>
                     </Grid2>
                     <Grid2 size={3}>
-                        <Button color='error' variant='contained' fullWidth onClick={() => changeShowData(1, index)}>
+                        <Button color={showData === 1 && showSession === index ? 'primary' : 'error'}  variant='contained' fullWidth onClick={() => changeShowData(1, index)}>
                             Vueltas de {session.name}
                         </Button>
                     </Grid2>
                     {session.raceResult ? (
                         <Grid2 size={3}>
-                            <Button color='error' variant='contained' fullWidth onClick={() => changeShowData(2, index)}>
+                            <Button color={showData === 2 && showSession === index ? 'primary' : 'error'} variant='contained' fullWidth onClick={() => changeShowData(2, index)}>
                                 Mejores vueltas de {session.name}
                             </Button>
                         </Grid2>
                     ) : null}
                     {session.raceResult ? (
                         <Grid2 size={3}>
-                            <Button color='error' variant='contained' fullWidth  onClick={() => changeShowData(3, index)}>
+                            <Button color={showData === 3 && showSession === index ? 'primary' : 'error'} variant='contained' fullWidth  onClick={() => changeShowData(3, index)}>
                                 Resultado de {session.name}
                             </Button>
                         </Grid2>
                     ) : <Grid2 size={3}>
-                            <Button color='error' variant='contained' fullWidth  onClick={() => changeShowData(2, index)}>
+                            <Button color={showData === 2 && showSession === index ? 'primary' : 'error'} variant='contained' fullWidth  onClick={() => changeShowData(2, index)}>
                                 Resultado de {session.name}
                             </Button>
                         </Grid2>

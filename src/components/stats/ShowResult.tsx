@@ -181,7 +181,7 @@ const ShowResult: React.FC<SessionProps> = ({ session, sesionid }) => {
                             <TableCell sx={{ color: "white" }}>Coche</TableCell>
                             <TableCell sx={{ color: "white" }}>Tiempo Total</TableCell>
                             <TableCell sx={{ color: "white" }}>Vueltas completadas</TableCell>
-                            <TableCell sx={{ color: "white" }}>Diferecia</TableCell>
+                            <TableCell sx={{ color: "white" }}>Difenrecia</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
