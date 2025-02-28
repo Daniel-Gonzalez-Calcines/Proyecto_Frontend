@@ -10,6 +10,8 @@ interface SessionProps {
 const ShowResult: React.FC<SessionProps> = ({ session, sesionid }) => {
 
     const [jsonData, setjsonData] = useState<{ sesion: sesiondata } | null>(null);
+    const [sortedResult, setSortedResult] = useState<sorted_result[] | null>(null);
+    let statsOfFirst = [0,0]
     let differenceAhead = [-1, -1, -1]
 
     useEffect(() => {
@@ -31,12 +33,33 @@ const ShowResult: React.FC<SessionProps> = ({ session, sesionid }) => {
         fetchSessions();
     }, [sesionid])
 
+    useEffect(() => {
+        const unsortedResult: sorted_result[] = [];
+        if (jsonData)
+            for (let i = 0; i < jsonData?.sesion.sessions[sesionid].raceResult.length; i++) {
+                let carid = jsonData?.sesion.sessions[sesionid].raceResult[i]
+                let name = findDriver(carid) as string
+                let car = findCar(carid) as string
+                let time = getTotalTime(carid)
+                let laps = getTotalLaps(carid)
+                unsortedResult.push({ Piloto: name, Coche: car, Tiempo: time, Vueltas: laps })
+            }
+        if (unsortedResult)
+            unsortedResult.sort((a: sorted_result, b: sorted_result) => {
+                if (a.Vueltas !== b.Vueltas) {
+                    return b.Vueltas - a.Vueltas;
+                }
+                return a.Tiempo - b.Tiempo;
+            });
+
+        setSortedResult(unsortedResult)
+    }, [jsonData])
+
     interface sorted_result {
         Piloto: string;
         Coche: string;
         Tiempo: number;
         Vueltas: number;
-        Diferencia: string;
     }
 
     interface sesiondata {
@@ -55,7 +78,7 @@ const ShowResult: React.FC<SessionProps> = ({ session, sesionid }) => {
         duration: number;
         lapsCount: number;
         lapstotal: number[];
-        raceResult?: number[];
+        raceResult: number[];
     }
 
     interface bestlaps {
@@ -106,14 +129,14 @@ const ShowResult: React.FC<SessionProps> = ({ session, sesionid }) => {
         return jsonData?.sesion.players[car].car
     }
 
-    function getTotalTime(car: number){
+    function getTotalTime(car: number) {
         let totalTime = 0;
-        if(jsonData)
-        for (let i = 0; i < jsonData?.sesion.sessions[sesionid].laps.length; i++) {
-            if (jsonData.sesion.sessions[sesionid].laps[i].car == car) {
-                totalTime += jsonData.sesion.sessions[sesionid].laps[i].time
+        if (jsonData)
+            for (let i = 0; i < jsonData?.sesion.sessions[sesionid].laps.length; i++) {
+                if (jsonData.sesion.sessions[sesionid].laps[i].car == car) {
+                    totalTime += jsonData.sesion.sessions[sesionid].laps[i].time
+                }
             }
-        }
         if (differenceAhead[0] == -1) {
             differenceAhead[0] = totalTime
         }
@@ -121,24 +144,25 @@ const ShowResult: React.FC<SessionProps> = ({ session, sesionid }) => {
         return totalTime;
     }
 
-    function getDifference() {
-        if (jsonData)
-        if (differenceAhead[2] > differenceAhead[3]) {
-            return (differenceAhead[2] - differenceAhead[3] + " vueltas")
+    function getDifference(row: sorted_result) {
+        if (statsOfFirst[0] == 0) {
+            statsOfFirst=[row.Vueltas, row.Tiempo]
+            return 0
+        } else if (statsOfFirst[0] == row.Vueltas) {
+            return formatMilliseconds(row.Tiempo - statsOfFirst[1])
         } else {
-            return formatMilliseconds(differenceAhead[1] - differenceAhead[0])
+            return (statsOfFirst[0] - row.Vueltas + " vueltas")
         }
-        return 0
     }
 
     function getTotalLaps(car: number) {
         let totalLaps = 0;
-        if(jsonData)
-        for (let i = 0; i < jsonData?.sesion.sessions[sesionid].laps.length; i++) {
-            if (jsonData.sesion.sessions[sesionid].laps[i].car == car) {
-                totalLaps += 1
+        if (jsonData)
+            for (let i = 0; i < jsonData?.sesion.sessions[sesionid].laps.length; i++) {
+                if (jsonData.sesion.sessions[sesionid].laps[i].car == car) {
+                    totalLaps += 1
+                }
             }
-        }
         if (differenceAhead[2] == -1) {
             differenceAhead[2] = totalLaps
         }
@@ -146,7 +170,7 @@ const ShowResult: React.FC<SessionProps> = ({ session, sesionid }) => {
         return totalLaps;
     }
 
-    return(
+    return (
         <>
             <TableContainer component={Paper} sx={{ marginTop: "20px" }}>
                 <Table sx={{ minWidth: 650 }} aria-label="Pilotos">
@@ -161,18 +185,18 @@ const ShowResult: React.FC<SessionProps> = ({ session, sesionid }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {jsonData?.sesion.sessions[sesionid].raceResult && jsonData?.sesion.sessions[sesionid].raceResult.length > 0 ? (
-                            jsonData?.sesion.sessions[sesionid].raceResult.map((row: number, index: number) => (
+                        {sortedResult && sortedResult.length > 0 ? (
+                            sortedResult.map((row: sorted_result, index: number) => (
                                 <TableRow
                                     key={index}
                                     sx={{ backgroundColor: index % 2 === 0 ? 'white' : 'rgb(255, 204, 203)' }}
                                 >
                                     <TableCell>{index + 1}</TableCell>
-                                    <TableCell>{findDriver(row)}</TableCell>
-                                    <TableCell>{findCar(row)}</TableCell>
-                                    <TableCell>{formatMilliseconds(getTotalTime(row))}</TableCell>
-                                    <TableCell>{getTotalLaps(row)}</TableCell>
-                                    <TableCell>+ {getDifference()}</TableCell>
+                                    <TableCell>{row.Piloto}</TableCell>
+                                    <TableCell>{row.Coche}</TableCell>
+                                    <TableCell>{formatMilliseconds(row.Tiempo)}</TableCell>
+                                    <TableCell>{row.Vueltas}</TableCell>
+                                    <TableCell>+ {getDifference(row)}</TableCell>
                                 </TableRow>
                             ))
                         ) : (
