@@ -17,6 +17,7 @@ import FilePresentIcon from '@mui/icons-material/FilePresent';
 import { authActions } from '../store/authSlice';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
+import PeopleIcon from '@mui/icons-material/People';
 
 
 function Menu() {
@@ -63,7 +64,7 @@ function Menu() {
                         <Link to='/Friends' style={{ textDecoration: 'none' }}>
                             <ListItemButton>
                                 <ListItemIcon>
-                                    <CloudUploadIcon sx={{color: 'white'}} />
+                                    <PeopleIcon sx={{color: 'white'}} />
                                 </ListItemIcon>
                                 <ListItemText primary="Amigos" sx={{ color: 'white' }} />
                             </ListItemButton>

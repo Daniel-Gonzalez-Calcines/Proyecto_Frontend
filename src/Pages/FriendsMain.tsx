@@ -1,4 +1,4 @@
-import { Typography, CircularProgress, Card, CardContent, CardMedia, Button, Grid2 } from "@mui/material";
+import { Typography, Card, CardContent, CardMedia, Button, Grid2 } from "@mui/material";
 import Menu from "../components/Menu";
 import { useEffect, useState } from "react";
 import { supabase } from "../DataBase/SupaBaseClient";
@@ -7,9 +7,8 @@ import { RootState } from "../store";
 
 function FriendsMain() {
     const [jsonData, setJsonData] = useState<userData[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [amigos, setAmigos] = useState<FriendsData>();
+    const [userId, setUserId] = useState(-1)
 
     const userData = useSelector((state: RootState) => state.authenticator)
     const usuario = userData.userName
@@ -23,6 +22,7 @@ function FriendsMain() {
     }
 
     interface FriendsData {
+        [x: string]: any;
         Send: number[];
         Friends: number[];
         Recived: number[];
@@ -43,9 +43,6 @@ function FriendsMain() {
                 }
             } catch (error) {
                 console.error("Error during fetching sessions:", error);
-                setError("Failed to fetch data.");
-            } finally {
-                setLoading(false);
             }
         };
         fetchSessions();
@@ -55,28 +52,99 @@ function FriendsMain() {
         for (let i = 0; i < jsonData.length; i++) {
             if (jsonData[i].usuario == usuario) {
                 setAmigos(jsonData[i].friends)
+                setUserId(jsonData[i].id)
                 return
             }
         }
     }, [jsonData])
 
-    if (loading) {
-        return (
-            <>
-                <Menu />
-                <Typography>Loading...</Typography>
-                <CircularProgress />
-            </>
-        );
+    async function deleteFriend(userid: number, index: number) {
+        if (amigos) {
+            amigos.Friends = amigos.Friends.filter(friend => friend !== userid);
+        }
+        if (jsonData[index].friends) {
+            jsonData[index].friends.Friends = jsonData[index].friends.Friends.filter(friend => friend !== userId);
+        }
+        try {
+            const { error: updateError1 } = await supabase
+                .from('Usuarios')
+                .update({ friends: (jsonData[index].friends) })
+                .eq('id', userid);
+            if (updateError1) {
+                console.error("Error updating user's friends list:", updateError1);
+                return;
+            }
+            const { error: updateError2 } = await supabase
+                .from('Usuarios')
+                .update({ friends: (amigos) })
+                .eq('id', userId);
+            if (updateError2) {
+                console.error("Error updating current user's friends list:", updateError2);
+            }
+        } catch (error) {
+            console.error("Error during deleteFriend operation:", error);
+        }
+        window.location.reload();
     }
 
-    if (error) {
-        return (
-            <>
-                <Menu />
-                <Typography color="error">{error}</Typography>
-            </>
-        );
+    async function acceptFriend(userid: number, index: number) {
+        if (amigos) {
+            amigos.Recived = amigos.Recived.filter(friend => friend !== userid);
+            amigos.Friends.push(userid)
+        }
+        if (jsonData[index].friends) {
+            jsonData[index].friends.Send = jsonData[index].friends.Send.filter(friend => friend !== userId);
+            jsonData[index].friends.Friends.push(userId)
+        }
+        try {
+            const { error: updateError1 } = await supabase
+                .from('Usuarios')
+                .update({ friends: (jsonData[index].friends) })
+                .eq('id', userid);
+            if (updateError1) {
+                console.error("Error updating user's friends list:", updateError1);
+                return;
+            }
+            const { error: updateError2 } = await supabase
+                .from('Usuarios')
+                .update({ friends: (amigos) })
+                .eq('id', userId);
+            if (updateError2) {
+                console.error("Error updating current user's friends list:", updateError2);
+            }
+        } catch (error) {
+            console.error("Error during deleteFriend operation:", error);
+        }
+        window.location.reload();
+    }
+
+    async function requestFriend(userid: number, index: number) {
+        if (amigos) {
+            amigos.Send.push(userid)
+        }
+        if (jsonData[index].friends) {
+            jsonData[index].friends.Recived.push(userId)
+        }
+        try {
+            const { error: updateError1 } = await supabase
+                .from('Usuarios')
+                .update({ friends: (jsonData[index].friends) })
+                .eq('id', userid);
+            if (updateError1) {
+                console.error("Error updating user's friends list:", updateError1);
+                return;
+            }
+            const { error: updateError2 } = await supabase
+                .from('Usuarios')
+                .update({ friends: (amigos) })
+                .eq('id', userId);
+            if (updateError2) {
+                console.error("Error updating current user's friends list:", updateError2);
+            }
+        } catch (error) {
+            console.error("Error during deleteFriend operation:", error);
+        }
+        window.location.reload();
     }
 
     return (
@@ -85,7 +153,7 @@ function FriendsMain() {
             <Typography variant="h4">Amigos</Typography>
             <Grid2 container spacing={2}>
                 {jsonData.length > 0 ? (
-                    jsonData.map(user => (
+                    jsonData.map((user, index) => (
                         user.usuario !== usuario ? (
                             <Grid2 size={3} key={user.id}>
                                 <Card sx={{ maxWidth: 250, margin: '20px auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -102,11 +170,11 @@ function FriendsMain() {
                                             <br />
                                         </Typography>
                                         {amigos?.Friends.includes(user.id) ? (
-                                            <Button color="error" variant="contained">
+                                            <Button color="error" variant="contained" onClick={() => deleteFriend(user.id, index)}>
                                                 Eliminar Amigo
                                             </Button>
-                                        ) : user.friends?.Send.includes(2) ? (
-                                            <Button variant='contained' color='success'>
+                                        ) : user.friends?.Send.includes(userId) ? (
+                                            <Button variant='contained' color='success' onClick={() => acceptFriend(user.id, index)}>
                                                 Aceptar Solicitud
                                             </Button>
                                         ) : amigos?.Send.includes(user.id) ? (
@@ -114,7 +182,7 @@ function FriendsMain() {
                                                 Solicitud enviada
                                             </Button>
                                         ) : (
-                                            <Button color='primary' variant="contained">
+                                            <Button color='primary' variant="contained" onClick={() => requestFriend(user.id, index)}>
                                                 Agregar amigo
                                             </Button>
                                         )}
