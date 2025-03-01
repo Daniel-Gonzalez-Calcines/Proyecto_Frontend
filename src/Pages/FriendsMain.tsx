@@ -1,4 +1,4 @@
-import { Typography, Card, CardContent, CardMedia, Button, Grid2 } from "@mui/material";
+import { Typography, Card, CardContent, CardMedia, Button, Grid2, TextField } from "@mui/material";
 import Menu from "../components/Menu";
 import { useEffect, useState } from "react";
 import { supabase } from "../DataBase/SupaBaseClient";
@@ -9,6 +9,7 @@ function FriendsMain() {
     const [jsonData, setJsonData] = useState<userData[]>([]);
     const [amigos, setAmigos] = useState<FriendsData>();
     const [userId, setUserId] = useState(-1)
+    const [search, setSearch] = useState("")
 
     const userData = useSelector((state: RootState) => state.authenticator)
     const usuario = userData.userName
@@ -57,6 +58,24 @@ function FriendsMain() {
             }
         }
     }, [jsonData])
+
+    async function searchFriend(name: string) {
+        try {
+            const { data: sessionData, error: fetchError } = await supabase
+                .from('Usuarios')
+                .select('*')
+                .ilike('usuario', `%${name}%`)
+                .limit(25);
+
+            if (fetchError) {
+                throw fetchError;
+            } else {
+                setJsonData(sessionData || []);
+            }
+        } catch (error) {
+            console.error("Error during fetching sessions:", error);
+        }
+    }
 
     async function deleteFriend(userid: number, index: number) {
         if (amigos) {
@@ -151,7 +170,28 @@ function FriendsMain() {
         <>
             <Menu />
             <Typography variant="h4">Amigos</Typography>
-            <Grid2 container spacing={2}>
+            <Grid2 container spacing={2} alignItems={"center"}>
+                <Grid2 size={3}></Grid2>
+                <Grid2 size={6}>
+                    <TextField
+                        required
+                        fullWidth
+                        id="Buscar usuario"
+                        label="Buscar usuario"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        slotProps={{
+                            inputLabel: {
+                                shrink: true,
+                            },
+                        }}
+                    />
+                </Grid2>
+                <Grid2 size={3}>
+                    <Button variant="contained" color="error" onClick={() => searchFriend(search)}>
+                        Buscar
+                    </Button>
+                </Grid2>
                 {jsonData.length > 0 ? (
                     jsonData.map((user, index) => (
                         user.usuario !== usuario ? (
