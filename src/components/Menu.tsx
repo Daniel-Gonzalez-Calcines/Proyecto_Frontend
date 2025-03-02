@@ -18,6 +18,7 @@ import { authActions } from '../store/authSlice';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import PeopleIcon from '@mui/icons-material/People';
+import PublicIcon from '@mui/icons-material/Public';
 
 
 function Menu() {
@@ -59,6 +60,18 @@ function Menu() {
                         </ListItemButton>
                     </Link>
                 </ListItem>
+                {parseInt(rol) > 0 ? (
+                    <ListItem disablePadding>
+                        <Link to='/ShowPublicSessions' style={{ textDecoration: 'none' }}>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <PublicIcon sx={{color: 'white'}} />
+                                </ListItemIcon>
+                                <ListItemText primary="Archivos públicos" sx={{ color: 'white' }} />
+                            </ListItemButton>
+                        </Link>
+                    </ListItem>
+                ) : null}
                 {parseInt(rol) > 0 ? (
                     <ListItem disablePadding>
                         <Link to='/Friends' style={{ textDecoration: 'none' }}>

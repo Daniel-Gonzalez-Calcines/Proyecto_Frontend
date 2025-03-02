@@ -5,6 +5,7 @@ import ShowPersonalSessions from './Pages/ShowPersonalSessions'
 import Upload from './Pages/Upload'
 import MainStats from './Pages/mainStats'
 import FriendsMain from './Pages/FriendsMain'
+import ShowPublicSessions from './Pages/ShowPublicSesions'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './App.css'
 
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: 'Friends',
         element: <FriendsMain />
+      }, 
+      {
+        path: 'ShowPublicSessions',
+        element: <ShowPublicSessions />
       }
     ]
   },
