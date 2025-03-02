@@ -2,17 +2,21 @@ import { Card, CardMedia, CardContent, Typography, Dialog, DialogContent, Button
 import { useEffect, useState } from "react";
 import { supabase } from "../DataBase/SupaBaseClient";
 import DeleteIcon from '@mui/icons-material/Delete';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useNavigate } from "react-router-dom";
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 interface SessionProps {
     session: number;
+    owner: boolean
 }
 
-const ShowSession: React.FC<SessionProps> = ({ session }) => {
+const ShowSession: React.FC<SessionProps> = ({ session, owner }) => {
     const [open, setOpen] = useState(false);
     const [jsonData, setjsonData] = useState<{ sesion: sesiondata } | null>(null);
     const [imageSrc, setImageSrc] = useState('/tracks/Default.jpg');
     const navigate = useNavigate()
+    const [liked, setLiked] = useState(false); 
 
     interface sesiondata {
         track: String;
@@ -53,6 +57,10 @@ const ShowSession: React.FC<SessionProps> = ({ session }) => {
         name: String;
         skin: String;
     }
+
+    const toggleLike = () => {
+        setLiked(!liked); 
+      };
 
     const handleImageClick = () => {
         setOpen(true);
@@ -250,11 +258,17 @@ const ShowSession: React.FC<SessionProps> = ({ session }) => {
                                 })
                             ) : null}
                         </Grid2>
-                        <Grid2 size={1}>
-                            <Button onClick={() => handleDelete(session)}>
-                                <DeleteIcon sx={{ color: 'red' }} />
-                            </Button>
-                        </Grid2>
+                        {!owner ? (
+                            <Grid2 size={1}>
+                                {liked ? <FavoriteIcon onClick={toggleLike} color="error" /> : <FavoriteBorderIcon onClick={toggleLike} />}
+                            </Grid2>
+                        ) : (
+                            <Grid2 size={1}>
+                                <Button onClick={() => handleDelete(session)}>
+                                    <DeleteIcon sx={{ color: 'red' }} />
+                                </Button>
+                            </Grid2>
+                        )}
                         <Grid2 size={12} >
                             <Button
                                 variant='contained'
@@ -265,15 +279,15 @@ const ShowSession: React.FC<SessionProps> = ({ session }) => {
                                     marginLeft: 'auto',
                                     marginRight: 'auto'
                                 }}
-                                onClick={() =>goToStats()}
+                                onClick={() => goToStats()}
                             >
                                 Ver estadísticas en detalle
                             </Button>
                         </Grid2>
                     </Grid2>
                 </DialogContent>
-            </Dialog>
-        </Card>
+            </Dialog >
+        </Card >
     );
 
 };

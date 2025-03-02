@@ -79,7 +79,7 @@ function ShowPublicSessions() {
                 {personalSessions.map((session) => (
                     amigos?.Friends.includes(session.user_id) ? (
                         <Grid2 sx={{ xs: 12, sm: 6, md: 4 }} >
-                            <ShowSession session={session.id} />
+                            <ShowSession session={session.id} owner={false} />
                         </Grid2>
                     ) : null
                 ))}
