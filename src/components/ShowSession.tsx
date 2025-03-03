@@ -8,15 +8,17 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 interface SessionProps {
     session: number;
-    owner: boolean
+    owner: boolean;
+    id: number
 }
 
-const ShowSession: React.FC<SessionProps> = ({ session, owner }) => {
+const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
     const [open, setOpen] = useState(false);
     const [jsonData, setjsonData] = useState<{ sesion: sesiondata } | null>(null);
+    const [likedData, setLikedData] = useState<number[]>([])
     const [imageSrc, setImageSrc] = useState('/tracks/Default.jpg');
     const navigate = useNavigate()
-    const [liked, setLiked] = useState(false); 
+    const [liked, setLiked] = useState(false);
 
     interface sesiondata {
         track: String;
@@ -58,9 +60,30 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner }) => {
         skin: String;
     }
 
-    const toggleLike = () => {
-        setLiked(!liked); 
-      };
+    const toggleLike = async () => {
+        likedData.push(id)
+        const { error: fetchError } = await supabase
+            .from('Sessions')
+            .update({ liked: { Liked: likedData } })
+            .eq('id', session)
+        if (fetchError) {
+            throw fetchError;
+        }
+        setLiked(true);
+    };
+
+    const toggleDisLike = async () => {
+        const updatedLikedData = likedData.filter(likeId => likeId !== id);
+        setLikedData(updatedLikedData);
+        const { error: fetchError } = await supabase
+            .from('Sessions')
+            .update({ liked: { Liked: updatedLikedData } })
+            .eq('id', session)
+        if (fetchError) {
+            throw fetchError;
+        }
+        setLiked(false);
+    }
 
     const handleImageClick = () => {
         setOpen(true);
@@ -129,12 +152,22 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner }) => {
             try {
                 const { data: sessionData, error: fetchError } = await supabase
                     .from('Sessions')
-                    .select('*')
+                    .select('sesion')
                     .eq('id', session).single();
                 if (fetchError) {
                     throw fetchError;
                 } else {
                     setjsonData(sessionData);
+                }
+
+                const { data: Data, error: fechtError2 } = await supabase
+                    .from('Sessions')
+                    .select('liked')
+                    .eq('id', session).single()
+                if (fechtError2) {
+                    throw fechtError2;
+                } else {
+                    setLikedData(Data.liked ? Data.liked.Liked : [])
                 }
             } catch (error) {
                 console.error("Error during fetching sessions:", error);
@@ -142,6 +175,14 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner }) => {
         };
         fetchSessions();
     }, []);
+
+    useEffect(() => {
+        if (likedData.includes(id)) {
+            setLiked(true)
+        } else {
+            setLiked(false)
+        }
+    }, [likedData])
 
     return (
         <Card sx={{ maxWidth: 400, minHeight: 400, minWidth: 400, maxHeight: 400, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -259,8 +300,19 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner }) => {
                             ) : null}
                         </Grid2>
                         {!owner ? (
-                            <Grid2 size={1}>
-                                {liked ? <FavoriteIcon onClick={toggleLike} color="error" /> : <FavoriteBorderIcon onClick={toggleLike} />}
+                            <Grid2 container direction="column" alignItems="center" size={1}>
+                                <Grid2>
+                                    {liked ? (
+                                        <FavoriteIcon onClick={toggleDisLike} color="error" />
+                                    ) : (
+                                        <FavoriteBorderIcon onClick={toggleLike} />
+                                    )}
+                                </Grid2>
+                                <Grid2>
+                                    <Typography textAlign={'center'}>
+                                        {likedData.length}
+                                    </Typography>
+                                </Grid2>
                             </Grid2>
                         ) : (
                             <Grid2 size={1}>

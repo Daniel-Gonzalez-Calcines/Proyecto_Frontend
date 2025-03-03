@@ -29,7 +29,7 @@ function Upload() {
 
                     const { error } = await supabase
                         .from('Sessions')
-                        .insert([{ sesion: jsonData, user_id: intId }]);
+                        .insert([{ sesion: jsonData, user_id: intId, liked: ({Liked: []})}]);
 
                     if (error) {
                         console.error('Error inserting user:', error);

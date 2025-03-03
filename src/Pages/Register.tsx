@@ -33,11 +33,11 @@ function Register() {
                         password: userData.contrasena,
                         rol: '1',
                         friends: ({
-                          Send: [],
-                          Friends: [],
-                          Recived: []
+                            Send: [],
+                            Friends: [],
+                            Recived: []
                         })
-                      }]);
+                    }]);
                 if (error) {
                     console.error('Error inserting user:', error);
                     setAlert({ message: "Error al registrar el usuario", severity: "error" });

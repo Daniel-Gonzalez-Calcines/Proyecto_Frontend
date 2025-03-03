@@ -12,6 +12,7 @@ function ShowPublicSessions() {
     const [personalSessions, setPersonalSessions] = useState<any[]>([]);
     const userData = useSelector((state: RootState) => state.authenticator);
     const [amigos, setAmigos] = useState<FriendsData>();
+    const [id, setId] = useState<number>(-1)
 
     interface FriendsData {
         [x: string]: any;
@@ -28,6 +29,7 @@ function ShowPublicSessions() {
             .select('id')
             .eq('usuario', name);
         if (data) {
+            setId(data[0].id)
             return (data[0].id)
         }
         return (0)
@@ -79,7 +81,7 @@ function ShowPublicSessions() {
                 {personalSessions.map((session) => (
                     amigos?.Friends.includes(session.user_id) ? (
                         <Grid2 sx={{ xs: 12, sm: 6, md: 4 }} >
-                            <ShowSession session={session.id} owner={false} />
+                            <ShowSession session={session.id} owner={false} id={id}/>
                         </Grid2>
                     ) : null
                 ))}
