@@ -1,5 +1,5 @@
-import { Button, Grid2, Typography } from "@mui/material";
-import { useState } from "react";
+import { Button, Grid2, TextField, Typography } from "@mui/material";
+import {  useState } from "react";
 import Menu from "../components/Menu";
 import { supabase } from "../DataBase/SupaBaseClient";
 import { useSelector } from "react-redux";
@@ -8,14 +8,25 @@ import { useNavigate } from "react-router-dom";
 
 function Upload() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [nameFile, setNameFile] = useState('')
     const navigate = useNavigate()
 
     const userData = useSelector((state: RootState) => state.authenticator)
+    const name = userData.userName
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] || null;
         setSelectedFile(file);
     };
+
+    const getCurrentDate = () => {
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+    
+        return `${day}/${month}/${year}`;
+      };
 
     const loadData = async () => {
         if (selectedFile) {
@@ -29,7 +40,7 @@ function Upload() {
 
                     const { error } = await supabase
                         .from('Sessions')
-                        .insert([{ sesion: jsonData, user_id: intId, liked: ({Liked: []})}]);
+                        .insert([{ sesion: jsonData, user_id: intId, liked: ({ Liked: [] }), extraInfo: ({ fileName: nameFile, ownerName: name, uploadDate: getCurrentDate() }) }]);
 
                     if (error) {
                         console.error('Error inserting user:', error);
@@ -91,9 +102,25 @@ function Upload() {
                     )}
                 </Grid2>
                 {selectedFile ? (
-                    <Grid2 size={12}>
-                        <Button onClick={() => UploadFile()} color='error' variant='contained'>Subir archivo</Button>
-                    </Grid2>
+                    <>
+                        <Grid2 size={12}>
+                            <TextField
+                                fullWidth
+                                id="File name"
+                                label="Nombre de archivo"
+                                value={nameFile}
+                                onChange={(e) => setNameFile(e.target.value)}
+                                slotProps={{
+                                    inputLabel: {
+                                        shrink: true,
+                                    },
+                                }}
+                            />
+                        </Grid2>
+                        <Grid2 size={12}>
+                            <Button onClick={() => UploadFile()} color='error' variant='contained'>Subir archivo</Button>
+                        </Grid2>
+                    </>
                 ) : null}
             </Grid2>
         </>

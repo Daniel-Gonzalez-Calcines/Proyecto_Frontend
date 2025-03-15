@@ -1,4 +1,4 @@
-import { Card, CardMedia, CardContent, Typography, Dialog, DialogContent, Button, Grid2, Divider } from "@mui/material";
+import { Card, CardMedia, CardContent, Typography, Dialog, DialogContent, Button, Grid2, Divider, Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import { supabase } from "../DataBase/SupaBaseClient";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -16,9 +16,16 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
     const [open, setOpen] = useState(false);
     const [jsonData, setjsonData] = useState<{ sesion: sesiondata } | null>(null);
     const [likedData, setLikedData] = useState<number[]>([])
+    const [extrainfo, setextrainfo] = useState<extraInfo | null>(null);
     const [imageSrc, setImageSrc] = useState('/tracks/Default.jpg');
     const navigate = useNavigate()
     const [liked, setLiked] = useState(false);
+
+    interface extraInfo {
+        fileName: string,
+        ownerName: string,
+        uploadDate: string
+    }
 
     interface sesiondata {
         track: String;
@@ -173,7 +180,27 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
                 console.error("Error during fetching sessions:", error);
             }
         };
+        const Fetchinfo = async () => {
+            try {
+                const { data: sessionData, error: fetchError } = await supabase
+                    .from('Sessions')
+                    .select('extraInfo')
+                    .eq('id', session)
+                    .single();
+
+                if (fetchError) {
+                    throw fetchError;
+                } else {
+                    if (sessionData && sessionData.extraInfo) {
+                        setextrainfo(sessionData.extraInfo);
+                    }
+                }
+            } catch (error) {
+                console.error("Error during fetching sessions:", error);
+            }
+        }
         fetchSessions();
+        Fetchinfo();
     }, []);
 
     useEffect(() => {
@@ -185,56 +212,83 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
     }, [likedData])
 
     return (
-        <Card sx={{ maxWidth: 400, minHeight: 400, minWidth: 400, maxHeight: 400, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Card sx={{ maxWidth: 400, minHeight: 532, minWidth: 400, maxHeight: 400, margin: '20px auto', position: 'relative', display: 'flex', flexDirection: 'column' }}>
             <CardMedia
                 component="img"
-                height="250"
+                height="250px"
                 image={imageSrc}
                 alt="circuit"
                 onClick={handleImageClick}
                 sx={{ cursor: 'pointer', width: '100%', objectFit: 'cover' }}
             />
             <CardContent sx={{ overflowY: 'auto' }}>
-                <Typography component="span" variant="body1">
-                    <Typography component="span" variant="body1" fontWeight="bold">
-                        Circuito:
+                <>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        <Typography variant="body1" fontWeight="bold" fontSize={'15px'}>
+                            {extrainfo?.ownerName}
+                        </Typography>
+                        <Typography variant="body1" fontSize={'15px'}>
+                            {extrainfo?.uploadDate}
+                        </Typography>
+                    </Box>
+                    <Typography component="span" variant="h1" fontWeight="bold" textAlign={'center'} fontSize={'20px'}>
+                        {extrainfo?.fileName}
                     </Typography>
-                    {jsonData ? jsonData.sesion.track : "Error while loading"}
-                </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        <Typography component="span" variant="body1" fontWeight="bold" textAlign={'left'} fontSize={'15px'}>
+                            {jsonData?.sesion.number_of_sessions}
+                            {jsonData?.sesion.number_of_sessions === 1 ? ' sesión' : ' sesiones'}
+                        </Typography>
+                        <Typography component="span" variant="body1" fontWeight="bold" textAlign={'right'} fontSize={'15px'}>
+                            {jsonData?.sesion.players.length}
+                            {jsonData?.sesion.players.length === 1 ? ' piloto' : ' pilotos'}
+                        </Typography>
+                    </Box>
+                </>
                 {jsonData ? (
                     Array.from({ length: jsonData.sesion.number_of_sessions }, (_, i) => {
                         const bestlap = jsonData.sesion.sessions[i].bestLaps.sort((a: { time: number; }, b: { time: number; }) => a.time - b.time);
                         const sesionname = jsonData.sesion.sessions[i].name.toUpperCase()
                         let playername = jsonData.sesion.players[bestlap[0].car].name;
-                        const duration = jsonData.sesion.sessions[i].duration
-                        const cars = jsonData.sesion.players.length;
-                        const laps = jsonData.sesion.sessions[i].lapsCount
-                        let str = `Vueltas: ${laps}`;
                         {
                             jsonData.sesion.sessions[i].raceResult ? (
                                 playername = jsonData.sesion.players[jsonData.sesion.sessions[i].raceResult[0]].name
                             ) : null
                         }
-                        {
-                            laps == 0 ? (
-                                str = `Tiempo: ${duration}`
-                            ) : null
-                        }
                         return (
-                            <Typography>
+                            <>
                                 <Typography component="span" variant="body1" fontWeight="bold">
                                     {sesionname}
                                 </Typography>
-                                <br />
-                                {str}
-                                <br />
-                                Pilotos: {cars}
-                                <br />
-                                Ganador: {playername}
-                            </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                    <Typography component="span" variant="body1" fontWeight="bold" textAlign={'left'} fontSize={'15px'}>
+                                        Ganador:
+                                    </Typography>
+                                    <Typography component="span" variant="body1" textAlign={'left'} fontSize={'15px'} sx={{ marginLeft: '8px' }}>
+                                        {playername}
+                                    </Typography>
+                                </Box>
+                            </>
                         );
                     })
                 ) : null}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', marginTop: '8px' }}>
+                    {liked ? (
+                        <>
+                            <FavoriteIcon onClick={toggleDisLike} color="error" />
+                            <Typography color='error' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
+                                {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
+                            </Typography>
+                        </>
+                    ) : (
+                        <>
+                            <FavoriteBorderIcon onClick={toggleLike} />
+                            <Typography color='black' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
+                                {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
+                            </Typography>
+                        </>
+                    )}
+                </Box>
             </CardContent>
 
             <Dialog open={open} onClose={handleClose}>
@@ -244,30 +298,43 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
                             <img
                                 src={imageSrc}
                                 alt="Circuit"
-                                style={{ maxWidth: '90%', maxHeight: '80vh', cursor: 'pointer' }}
+                                style={{ maxWidth: '100%', maxHeight: '80vh' }}
                             />
                         </Grid2>
-                        <Grid2 size={11}>
-                            <Typography variant="body1" component="p" sx={{ marginTop: '10px', textAlign: 'center' }}>
-                                <Typography component="span" variant="body1" fontWeight="bold">
-                                    Circuito:
+                        <Grid2 size={12}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                <Typography variant="body1" fontWeight="bold" fontSize={'15px'}>
+                                    {extrainfo?.ownerName}
                                 </Typography>
-                                {jsonData ? " " + jsonData.sesion.track : " Error while loading"}
-                                <br />
-                                <Typography component="span" variant="body1" fontWeight="bold">
-                                    Número de sesiones:
+                                <Typography variant="body1" fontSize={'15px'}>
+                                    {extrainfo?.uploadDate}
                                 </Typography>
-                                {jsonData ? " " + jsonData.sesion.number_of_sessions : " Error while loading"}
-                            </Typography>
+                            </Box>
+
+                            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', margin: '10px 0' }}>
+                                <Typography component="span" variant="h1" fontWeight="bold" textAlign={'center'} fontSize={'20px'}>
+                                    {extrainfo?.fileName}
+                                </Typography>
+                            </Box>
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                <Typography component="span" variant="body1" fontWeight="bold" textAlign={'left'} fontSize={'15px'}>
+                                    {jsonData?.sesion.number_of_sessions}
+                                    {jsonData?.sesion.number_of_sessions === 1 ? ' sesión' : ' sesiones'}
+                                </Typography>
+                                <Typography component="span" variant="body1" fontWeight="bold" textAlign={'right'} fontSize={'15px'}>
+                                    {jsonData?.sesion.players.length}
+                                    {jsonData?.sesion.players.length === 1 ? ' piloto' : ' pilotos'}
+                                </Typography>
+                            </Box>
                             {jsonData ? (
                                 Array.from({ length: jsonData.sesion.number_of_sessions }, (_, i) => {
                                     const bestlap = jsonData.sesion.sessions[i].bestLaps.sort((a: { time: number; }, b: { time: number; }) => a.time - b.time);
                                     const sesionname = jsonData.sesion.sessions[i].name.toUpperCase()
                                     let playername = jsonData.sesion.players[bestlap[0].car].name;
                                     const duration = jsonData.sesion.sessions[i].duration
-                                    const cars = jsonData.sesion.players.length;
                                     const laps = jsonData.sesion.sessions[i].lapsCount
-                                    let str = `Vueltas: ${laps}`;
+                                    let str = laps;
                                     {
                                         jsonData.sesion.sessions[i].raceResult ? (
                                             playername = jsonData.sesion.players[jsonData.sesion.sessions[i].raceResult[0]].name
@@ -275,7 +342,7 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
                                     }
                                     {
                                         laps == 0 ? (
-                                            str = `Tiempo: ${duration}`
+                                            str = duration
                                         ) : null
                                     }
                                     return (
@@ -285,43 +352,38 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
                                                 <Typography component="span" variant="body1" fontWeight="bold">
                                                     {sesionname}
                                                 </Typography>
-                                                <br />
-                                                {str}
-                                                <br />
-                                                Pilotos: {cars}
-                                                <br />
-                                                Mejor Vuelta: {formatMilliseconds(bestlap[0].time)} por {jsonData.sesion.players[bestlap[0].car].name}
-                                                <br />
-                                                Ganador: {playername}
+                                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                                    <Typography component="span" variant="body1" fontWeight="bold" textAlign={'left'} fontSize={'15px'}>
+                                                        {laps === 0 ? "Tiempo: " : "Vueltas: "}
+                                                    </Typography>
+                                                    <Typography component="span" variant="body1" textAlign={'left'} fontSize={'15px'} sx={{ marginLeft: '8px' }}>
+                                                        {str}
+                                                    </Typography>
+                                                </Box>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                                    <Typography component="span" variant="body1" fontWeight="bold" textAlign={'left'} fontSize={'15px'}>
+                                                        Mejor Vuelta:
+                                                    </Typography>
+                                                    <Typography component="span" variant="body1" textAlign={'left'} fontSize={'15px'} sx={{ marginLeft: '8px' }}>
+                                                        {formatMilliseconds(bestlap[0].time)} por {jsonData.sesion.players[bestlap[0].car].name}
+                                                    </Typography>
+                                                </Box>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                                    <Typography component="span" variant="body1" fontWeight="bold" textAlign={'left'} fontSize={'15px'}>
+                                                        Ganador:
+                                                    </Typography>
+                                                    <Typography component="span" variant="body1" textAlign={'left'} fontSize={'15px'} sx={{ marginLeft: '8px' }}>
+                                                        {playername}
+                                                    </Typography>
+                                                </Box>
                                             </Typography>
                                         </>
                                     );
                                 })
                             ) : null}
                         </Grid2>
-                        {!owner ? (
-                            <Grid2 container direction="column" alignItems="center" size={1}>
-                                <Grid2>
-                                    {liked ? (
-                                        <FavoriteIcon onClick={toggleDisLike} color="error" />
-                                    ) : (
-                                        <FavoriteBorderIcon onClick={toggleLike} />
-                                    )}
-                                </Grid2>
-                                <Grid2>
-                                    <Typography textAlign={'center'}>
-                                        {likedData.length}
-                                    </Typography>
-                                </Grid2>
-                            </Grid2>
-                        ) : (
-                            <Grid2 size={1}>
-                                <Button onClick={() => handleDelete(session)}>
-                                    <DeleteIcon sx={{ color: 'red' }} />
-                                </Button>
-                            </Grid2>
-                        )}
-                        <Grid2 size={12} >
+                        <Grid2 size={3}></Grid2>
+                        <Grid2 size={6} >
                             <Button
                                 variant='contained'
                                 color='error'
@@ -336,6 +398,33 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
                                 Ver estadísticas en detalle
                             </Button>
                         </Grid2>
+                        {!owner ? (
+                            <Grid2 container direction="column" alignItems="center" size={3}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                                    {liked ? (
+                                        <>
+                                            <FavoriteIcon onClick={toggleDisLike} color="error" cursor='pointer'/>
+                                            <Typography color='error' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
+                                                {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
+                                            </Typography>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FavoriteBorderIcon onClick={toggleLike} cursor='pointer'/>
+                                            <Typography color='black' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
+                                                {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
+                                            </Typography>
+                                        </>
+                                    )}
+                                </Box>
+                            </Grid2>
+                        ) : (
+                            <Grid2 size={3}>
+                                <Button onClick={() => handleDelete(session)}>
+                                    <DeleteIcon sx={{ color: 'red' }} />
+                                </Button>
+                            </Grid2>
+                        )}
                     </Grid2>
                 </DialogContent>
             </Dialog >
