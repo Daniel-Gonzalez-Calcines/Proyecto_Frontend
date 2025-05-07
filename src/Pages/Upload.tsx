@@ -28,12 +28,73 @@ function Upload() {
         return `${day}/${month}/${year}`;
       };
 
+    const validateSessionData = (data: any): boolean => {
+        // Validar estructura básica
+        if (!data || typeof data !== 'object') return false;
+        
+        // Validar track
+        if (!data.track || typeof data.track !== 'string') return false;
+        
+        // Validar players
+        if (!Array.isArray(data.players)) return false;
+        for (const player of data.players) {
+            if (!player.car || !player.name || !player.skin) return false;
+        }
+        
+        // Validar number_of_sessions
+        if (typeof data.number_of_sessions !== 'number') return false;
+        
+        // Validar sessions
+        if (!Array.isArray(data.sessions)) return false;
+        for (const session of data.sessions) {
+            // Validar campos requeridos de unique_sesion_data
+            if (!session.name || 
+                typeof session.type !== 'number' || 
+                typeof session.event !== 'number' || 
+                !Array.isArray(session.laps) || 
+                !Array.isArray(session.bestLaps) ||
+                typeof session.duration !== 'number' || 
+                typeof session.lapsCount !== 'number' ||
+                !Array.isArray(session.lapstotal)) {
+                return false;
+            }
+            
+            // Validar estructura de laps
+            for (const lap of session.laps) {
+                if (typeof lap.car !== 'number' || 
+                    typeof lap.lap !== 'number' || 
+                    typeof lap.cuts !== 'number' || 
+                    typeof lap.time !== 'number' || 
+                    !Array.isArray(lap.sectors)) {
+                    return false;
+                }
+            }
+            
+            // Validar estructura de bestLaps
+            for (const bestLap of session.bestLaps) {
+                if (typeof bestLap.car !== 'number' || 
+                    typeof bestLap.lap !== 'number' || 
+                    typeof bestLap.time !== 'number') {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    };
+
     const loadData = async () => {
         if (selectedFile) {
             const reader = new FileReader();
             reader.onload = async (event) => {
                 try {
                     const jsonData = JSON.parse(event.target?.result as string);
+                    
+                    // Validar el JSON antes de subirlo
+                    if (!validateSessionData(jsonData)) {
+                        alert('El archivo JSON no cumple con el formato requerido');
+                        return;
+                    }
 
                     const id = await getId();
                     const intId = parseInt(id, 10);
@@ -50,6 +111,7 @@ function Upload() {
 
                 } catch (error) {
                     console.error("Error parsing JSON:", error);
+                    alert('Error al procesar el archivo JSON');
                 }
             };
             reader.readAsText(selectedFile);
@@ -85,7 +147,6 @@ function Upload() {
     return (
         <>
             <Menu />
-
             <Grid2 container spacing={2} rowSpacing={1}>
                 <Grid2 size={12}>
                     <Typography variant="h2" color="white">

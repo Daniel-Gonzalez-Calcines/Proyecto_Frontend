@@ -111,7 +111,6 @@ function Login() {
 
                 <Button variant='contained' fullWidth type='submit' color='error'>Acceder</Button>
                 <Button variant='contained' fullWidth onClick={handleRegister} color='error'>Registrarse</Button>
-                <Button variant='contained' fullWidth onClick={handleNoLogin} color='error'>Acceder sin identificarse</Button>
 
                 {alert.message && (
                     <Alert severity={alert.severity = 'error'} style={{ marginTop: '10px', width: '100%' }}>

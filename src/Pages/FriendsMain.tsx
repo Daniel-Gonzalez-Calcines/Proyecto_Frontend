@@ -1,4 +1,4 @@
-import { Typography, Card, CardContent, CardMedia, Button, Grid2, TextField } from "@mui/material";
+import { Typography, Card, CardContent, CardMedia, Button, Grid, TextField, Box } from "@mui/material";
 import Menu from "../components/Menu";
 import { useEffect, useState } from "react";
 import { supabase } from "../DataBase/SupaBaseClient";
@@ -10,6 +10,7 @@ function FriendsMain() {
     const [amigos, setAmigos] = useState<FriendsData>();
     const [userId, setUserId] = useState(-1)
     const [search, setSearch] = useState("")
+    const [searchCondition, setSearchCondition] = useState<'friends' | 'sended' | 'recived' | 'none'>('friends')
 
     const userData = useSelector((state: RootState) => state.authenticator)
     const usuario = userData.userName
@@ -169,12 +170,11 @@ function FriendsMain() {
     return (
         <>
             <Menu />
-            <Typography variant="h4">Amigos</Typography>
-            <Grid2 container spacing={2} alignItems={"center"}>
-                <Grid2 size={3}></Grid2>
-                <Grid2 size={6}>
+            <Typography variant="h4">Social</Typography>
+            <Grid container spacing={2} alignItems={"center"}>
+                <Grid item xs={3}></Grid>
+                <Grid item xs={6}>
                     <TextField
-                        required
                         fullWidth
                         id="Buscar usuario"
                         label="Buscar usuario"
@@ -186,16 +186,65 @@ function FriendsMain() {
                             },
                         }}
                     />
-                </Grid2>
-                <Grid2 size={3}>
-                    <Button variant="contained" color="error" onClick={() => searchFriend(search)}>
+                </Grid>
+                <Grid item xs={2}>
+                    <Button variant="contained" color="error" onClick={() => searchFriend(search)} sx={{width: '100%'}}>
                         Buscar
                     </Button>
-                </Grid2>
+                </Grid>
+                <Grid item xs={12}>
+                    <Grid container spacing={2} sx={{ padding: '20px' }}>
+                        <Grid item xs={12} md={6} lg={3} sx={{ padding: '10px' }}>
+                            <Button 
+                                variant="contained" 
+                                color="error" 
+                                onClick={() => setSearchCondition('friends')} 
+                                sx={{width: '100%'}}
+                            >
+                                Amigos
+                            </Button>
+                        </Grid>
+                        <Grid item xs={12} md={6} lg={3} sx={{ padding: '10px' }}>
+                            <Button 
+                                variant="contained" 
+                                color="error" 
+                                onClick={() => setSearchCondition('sended')} 
+                                sx={{width: '100%'}}
+                            >
+                                Solicitudes Enviadas
+                            </Button>
+                        </Grid>
+                        <Grid item xs={12} md={6} lg={3} sx={{ padding: '10px' }}>
+                            <Button 
+                                variant="contained" 
+                                color="error" 
+                                onClick={() => setSearchCondition('recived')} 
+                                sx={{width: '100%'}}
+                            >
+                                Solicitudes Recividas
+                            </Button>
+                        </Grid>
+                        <Grid item xs={12} md={6} lg={3} sx={{ padding: '10px' }}>
+                            <Button 
+                                variant="contained" 
+                                color="error" 
+                                onClick={() => setSearchCondition('none')} 
+                                sx={{width: '100%'}}
+                            >
+                                Buscar Nuevos Amigos
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
                 {jsonData.length > 0 ? (
                     jsonData.map((user, index) => (
-                        user.usuario !== usuario ? (
-                            <Grid2 size={3} key={user.id}>
+                        user.usuario !== usuario && (
+                            (searchCondition === 'friends' && amigos?.Friends.includes(user.id)) ||
+                            (searchCondition === 'sended' && amigos?.Send.includes(user.id)) ||
+                            (searchCondition === 'recived' && amigos?.Recived.includes(user.id)) ||
+                            (searchCondition === 'none' && !amigos?.Friends.includes(user.id) && !amigos?.Send.includes(user.id) && !amigos?.Recived.includes(user.id))
+                        ) ? (
+                            <Grid item xs={3} key={user.id}>
                                 <Card sx={{ maxWidth: 250, margin: '20px auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                     <CardMedia
                                         component="img"
@@ -228,13 +277,13 @@ function FriendsMain() {
                                         )}
                                     </CardContent>
                                 </Card>
-                            </Grid2>
+                            </Grid>
                         ) : null
                     ))
                 ) : (
                     <Typography>No friends found.</Typography>
                 )}
-            </Grid2>
+            </Grid>
         </>
     );
 }

@@ -79,7 +79,7 @@ function Menu() {
                                 <ListItemIcon>
                                     <PeopleIcon sx={{color: 'white'}} />
                                 </ListItemIcon>
-                                <ListItemText primary="Amigos" sx={{ color: 'white' }} />
+                                <ListItemText primary="Social" sx={{ color: 'white' }} />
                             </ListItemButton>
                         </Link>
                     </ListItem>
