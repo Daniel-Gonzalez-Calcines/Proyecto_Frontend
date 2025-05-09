@@ -273,16 +273,23 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
                     })
                 ) : null}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', marginTop: '8px' }}>
-                    {liked ? (
+                    {id === -1 ? (
                         <>
-                            <FavoriteIcon onClick={toggleDisLike} color="error" cursor='pointer'/>
+                            <FavoriteIcon color='error' cursor='pointer' />
+                            <Typography color='error' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
+                                {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
+                            </Typography>
+                        </>
+                    ) : liked === true ? (
+                        <>
+                            <FavoriteIcon onClick={toggleDisLike} color="error" cursor='pointer' />
                             <Typography color='error' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
                                 {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
                             </Typography>
                         </>
                     ) : (
                         <>
-                            <FavoriteBorderIcon onClick={toggleLike} cursor='pointer'/>
+                            <FavoriteBorderIcon onClick={toggleLike} cursor='pointer' />
                             <Typography color='black' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
                                 {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
                             </Typography>
@@ -403,14 +410,14 @@ const ShowSession: React.FC<SessionProps> = ({ session, owner, id }) => {
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                                     {liked ? (
                                         <>
-                                            <FavoriteIcon onClick={toggleDisLike} color="error" cursor='pointer'/>
+                                            <FavoriteIcon onClick={toggleDisLike} color="error" cursor='pointer' />
                                             <Typography color='error' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
                                                 {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
                                             </Typography>
                                         </>
                                     ) : (
                                         <>
-                                            <FavoriteBorderIcon onClick={toggleLike} cursor='pointer'/>
+                                            <FavoriteBorderIcon onClick={toggleLike} cursor='pointer' />
                                             <Typography color='black' fontWeight={'bold'} sx={{ marginLeft: '4px' }}>
                                                 {likedData.length}{likedData.length === 0 ? "" : likedData.length === 1 ? " Like" : " Likes"}
                                             </Typography>

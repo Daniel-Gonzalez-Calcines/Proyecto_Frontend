@@ -19,14 +19,6 @@ function Login() {
         navigate('/Register')
     }
 
-    const handleNoLogin = () => {
-        dispatch(authActions.login({
-            name: "guest",
-            rol: "0"
-        }))
-        navigate('/ShowPersonalSessions')
-    }
-
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
         const { data } = await supabase

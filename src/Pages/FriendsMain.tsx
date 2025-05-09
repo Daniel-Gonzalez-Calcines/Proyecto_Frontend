@@ -1,4 +1,4 @@
-import { Typography, Card, CardContent, CardMedia, Button, Grid, TextField, Box } from "@mui/material";
+import { Typography, Card, CardContent, CardMedia, Button, Grid, TextField } from "@mui/material";
 import Menu from "../components/Menu";
 import { useEffect, useState } from "react";
 import { supabase } from "../DataBase/SupaBaseClient";
